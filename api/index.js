@@ -7,7 +7,6 @@ import { fileURLToPath } from 'url';
 
 dotenv.config();
 
-// Fix for __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -24,14 +23,11 @@ const port = process.env.PORT || 3000;
 app.use(cookieParser());
 app.use(express.json());
 
-// ✅ Correct static path
 app.use(express.static(path.join(__dirname, '../basic/dist')));
 
-// API routes
 app.use('/api/user', userRoutes);
 app.use('/api/auth', authRoutes);
 
-// Global error handler
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Internal Server Error';
@@ -42,7 +38,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ✅ React frontend fallback
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../basic/dist/index.html'));
 });
