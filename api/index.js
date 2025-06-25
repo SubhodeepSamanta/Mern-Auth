@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import path from 'path';
 import userRoutes from './routes/user.routes.js';
-import authRoutes from './routes/auth.router.js';
+import authRoutes from './routes/auth.routes.js';
 import cookieParser from 'cookie-parser';
 mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.log('Connected to MongoDB');
