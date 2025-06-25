@@ -1,43 +1,52 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-dotenv.config();
 import path from 'path';
+import cookieParser from 'cookie-parser';
+import { fileURLToPath } from 'url';
+
+dotenv.config();
+
+// Fix for __dirname in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 import userRoutes from './routes/user.routes.js';
 import authRoutes from './routes/auth.routes.js';
-import cookieParser from 'cookie-parser';
-mongoose.connect(process.env.MONGODB_URI).then(() => {
-  console.log('Connected to MongoDB');
-}).catch(err => {
-  console.error('Error connecting to MongoDB:', err);
-});
+
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('Error connecting to MongoDB:', err));
+
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
+
 app.use(cookieParser());
-app.use(express.json()); 
+app.use(express.json());
 
-const __dirname = path.resolve();
-app.use(express.static(path.join(__dirname, '/basic/dist')));
+// ✅ Correct static path
+app.use(express.static(path.join(__dirname, '../basic/dist')));
 
-
+// API routes
 app.use('/api/user', userRoutes);
 app.use('/api/auth', authRoutes);
 
-
-//error handling middleware
+// Global error handler
 app.use((err, req, res, next) => {
- const statusCode = err.statusCode || 500;
- const message = err.message || 'Internal Server Error';
- res.status(statusCode).json({
-     status: 'error',
-     statusCode,
-     message
- });
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'Internal Server Error';
+  res.status(statusCode).json({
+    status: 'error',
+    statusCode,
+    message
+  });
 });
-app.get('*',(req,res)=> {
-  res.sendFile(path.join(__dirname, 'basic', 'dist', 'index.html'));
+
+// ✅ React frontend fallback
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../basic/dist/index.html'));
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`Server running on port ${port}`);
 });
